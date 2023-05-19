@@ -31,7 +31,6 @@ public class Server {
                     connection.start();
 
                 } catch (SocketException e) {
-
                     break;
                 } catch (IOException e) {
                     break;

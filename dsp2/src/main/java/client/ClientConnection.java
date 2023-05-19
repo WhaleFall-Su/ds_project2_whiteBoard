@@ -8,13 +8,14 @@ import java.net.Socket;
 
 public class ClientConnection extends Thread{
 
-    private Socket socket;
+    Socket socket;
     BufferedReader in;
     BufferedWriter out;
-    private String status = " ";
+    private String status = "wait";
 
-    public String getStatus() {
-        return status;
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override
@@ -22,11 +23,20 @@ public class ClientConnection extends Thread{
         try {
             while (true) {
                 status = in.readLine();
+//                System.out.println("status is " + status);
+                switch (status) {
+                    case "approve entre":
+                        out.write(ApplyJoin.username + "\n");
+                        out.flush();
+                        break;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+
     public ClientConnection(Socket socket) {
         try {
             this.socket = socket;
@@ -35,6 +45,10 @@ public class ClientConnection extends Thread{
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public String getStatus() {
+        return status;
     }
 
 

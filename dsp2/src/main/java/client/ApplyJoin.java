@@ -6,6 +6,7 @@ import manager.Server;
 import javax.swing.*;
 import java.awt.*;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 public class ApplyJoin {
 
@@ -60,6 +61,7 @@ public class ApplyJoin {
             }
         });
         clientConnection.start();
+
     }
 
     /**
@@ -82,10 +84,10 @@ public class ApplyJoin {
         addUserButton.setBounds(153, 197, 117, 47);
         frame.getContentPane().add(addUserButton);
 
-        JTextArea userName = new JTextArea();
-        userName.setLineWrap(true);
-        userName.setBounds(54, 94, 327, 74);
-        frame.getContentPane().add(userName);
+        JTextArea userNameArea = new JTextArea();
+        userNameArea.setLineWrap(true);
+        userNameArea.setBounds(54, 94, 327, 74);
+        frame.getContentPane().add(userNameArea);
 
         JLabel userNameLabel = new JLabel("Please input your username");
         userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -95,10 +97,19 @@ public class ApplyJoin {
         addUserButton.addActionListener(e -> {
             if (e.getActionCommand().equals("ENTER")) {
                 try {
-                    username = userName.getText();
-                    clientConnection.out.write("Join\n");
+                    username = userNameArea.getText();
+                    clientConnection.out.write("join " + username + "\n");
                     clientConnection.out.flush();
-                    if (clientConnection.getStatus().equals("ok")) {
+                    int time = 0;
+                    while (clientConnection.getStatus().equals("wait") && time < 100000) {
+                        TimeUnit.MILLISECONDS.sleep(100);
+                        time += 100;
+                    }
+
+                    String status = clientConnection.getStatus();
+
+                    System.out.println("getStatus() is " + status);
+                    if (status.equals("approve enter")) {
                         frame.dispose();
                         guestUIBoard = new GuestUIBoard(username);
                     }

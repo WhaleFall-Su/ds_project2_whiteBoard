@@ -1,7 +1,6 @@
 package manager;
 
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -23,6 +22,7 @@ public class ManagerUIBoard {
     public JList list;
     public static int curX, curY;
     public static JTextArea chatArea;
+    public static JTextArea memberList;
 
     /*// 得到图标图片，存在问题
     ImageIcon circle = new ImageIcon("/icon/circle.png");
@@ -45,6 +45,12 @@ public class ManagerUIBoard {
         initialize(userName);
     }
 
+
+    public int showRequest(String userName) {
+        int option = JOptionPane.showConfirmDialog(null, userName + " wants to join your white board",
+                "Confirm", JOptionPane.INFORMATION_MESSAGE);
+        return option;
+    }
     /**
      * Initialize the contents of the frame.
      */
@@ -143,20 +149,23 @@ public class ManagerUIBoard {
 //        background.setBackground(Color.WHITE);
 //        frame.getContentPane().add(background);
 
-        JTextArea textArea = new JTextArea();
-        textArea.setLineWrap(true);
-        textArea.setBounds(1284, 53, 310, 578);
-        frame.getContentPane().add(textArea);
+        JTextArea chatArea = new JTextArea();
+        chatArea.setLineWrap(true);
+        chatArea.setBounds(1284, 53, 310, 578);
+        frame.getContentPane().add(chatArea);
 
-        JTextArea textArea_1 = new JTextArea();
-        textArea_1.setLineWrap(true);
-        textArea_1.setBounds(0, 408, 117, 318);
-        frame.getContentPane().add(textArea_1);
+        JTextArea memberList = new JTextArea();
+        memberList.setLineWrap(true);
+        memberList.setBounds(0, 408, 117, 318);
+        /*for (String member : Server.memberList) {
+            memberList.setText(member + "\n");
+        }*/
+        frame.getContentPane().add(memberList);
 
-        JTextArea textArea_2 = new JTextArea();
-        textArea_2.setLineWrap(true);
-        textArea_2.setBounds(1284, 661, 236, 105);
-        frame.getContentPane().add(textArea_2);
+        JTextArea sendMessArea = new JTextArea();
+        sendMessArea.setLineWrap(true);
+        sendMessArea.setBounds(1284, 661, 236, 105);
+        frame.getContentPane().add(sendMessArea);
 
         JButton send = new JButton("Send");
         send.setBounds(1520, 739, 74, 29);
@@ -178,6 +187,7 @@ public class ManagerUIBoard {
         });
         kickButton.setBounds(0, 725, 117, 42);
         frame.getContentPane().add(kickButton);
+
 
 
 

@@ -142,20 +142,20 @@ public class GuestUIBoard {
 //        background.setBackground(Color.WHITE);
 //        frame.getContentPane().add(background);
 
-        JTextArea textArea = new JTextArea();
-        textArea.setLineWrap(true);
-        textArea.setBounds(1284, 53, 310, 578);
-        frame.getContentPane().add(textArea);
+        JTextArea chatArea = new JTextArea();
+        chatArea.setLineWrap(true);
+        chatArea.setBounds(1284, 53, 310, 578);
+        frame.getContentPane().add(chatArea);
 
-        JTextArea textArea_1 = new JTextArea();
-        textArea_1.setLineWrap(true);
-        textArea_1.setBounds(0, 408, 117, 358);
-        frame.getContentPane().add(textArea_1);
+        JTextArea memberList = new JTextArea();
+        memberList.setLineWrap(true);
+        memberList.setBounds(0, 408, 117, 358);
+        frame.getContentPane().add(memberList);
 
-        JTextArea textArea_2 = new JTextArea();
-        textArea_2.setLineWrap(true);
-        textArea_2.setBounds(1284, 661, 236, 105);
-        frame.getContentPane().add(textArea_2);
+        JTextArea sendMessArea = new JTextArea();
+        sendMessArea.setLineWrap(true);
+        sendMessArea.setBounds(1284, 661, 236, 105);
+        frame.getContentPane().add(sendMessArea);
 
         JButton send = new JButton("Send");
         send.setBounds(1520, 739, 74, 29);
@@ -179,5 +179,8 @@ public class GuestUIBoard {
         createWhiteBoard = managerUIBoard;
     }*/
 }
+
+
+
 
 

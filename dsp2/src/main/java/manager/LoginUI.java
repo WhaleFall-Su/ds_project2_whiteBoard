@@ -11,7 +11,7 @@ public class LoginUI {
     public static String address;
     public static int port;
     public static String username;
-    public ManagerUIBoard managerUIBoard;
+    public static ManagerUIBoard managerUIBoard;
     /**
      * Launch the application.
      */
@@ -66,10 +66,10 @@ public class LoginUI {
         addUserButton.setBounds(153, 197, 117, 47);
         frame.getContentPane().add(addUserButton);
 
-        JTextArea userName = new JTextArea();
-        userName.setLineWrap(true);
-        userName.setBounds(54, 94, 327, 74);
-        frame.getContentPane().add(userName);
+        JTextArea userNameArea = new JTextArea();
+        userNameArea.setLineWrap(true);
+        userNameArea.setBounds(54, 94, 327, 74);
+        frame.getContentPane().add(userNameArea);
 
         JLabel userNameLabel = new JLabel("Please input your username");
         userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -78,9 +78,10 @@ public class LoginUI {
 
         addUserButton.addActionListener(e -> {
             if (e.getActionCommand().equals("ENTER")) {
-                username = userName.getText();
+                username = userNameArea.getText();
                 frame.dispose();
                 try {
+
                     managerUIBoard = new ManagerUIBoard(username);
                     /*//这段有什么用
                     managerUIBoard.setFrame(managerUIBoard);*/
