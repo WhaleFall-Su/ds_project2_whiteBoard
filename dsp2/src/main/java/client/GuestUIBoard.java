@@ -1,6 +1,8 @@
-package manager;
+package client;
 
 
+import manager.CanvasPainter;
+import manager.Listener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 
-public class ManagerUIBoard {
+public class GuestUIBoard {
 
     static Listener createDrawListener;
 
@@ -17,9 +19,9 @@ public class ManagerUIBoard {
     int height;
 //    private String file = "./save/white_board";
 
-    static ManagerUIBoard createWhiteBoard;
+    static manager.ManagerUIBoard createWhiteBoard;
 
-    static CanvasPainter canvas;
+    static manager.CanvasPainter canvas;
     public JList list;
     public static int curX, curY;
     public static JTextArea chatArea;
@@ -41,7 +43,7 @@ public class ManagerUIBoard {
     /**
      * Create the application.
      */
-    public ManagerUIBoard(String userName) {
+    public GuestUIBoard(String userName) {
         initialize(userName);
     }
 
@@ -66,10 +68,7 @@ public class ManagerUIBoard {
         //        toolPanel.setBounds(0,0,80,450);
         //        toolPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        // menu
-        JComboBox menu = new JComboBox();
-        toolPanel.add(menu);
-        menu.setModel(new DefaultComboBoxModel(new String[]{"New", "Save", "Save as", "Open", "Exit"}));
+
 
         // tool
         JButton lineButton = new JButton("line");
@@ -150,7 +149,7 @@ public class ManagerUIBoard {
 
         JTextArea textArea_1 = new JTextArea();
         textArea_1.setLineWrap(true);
-        textArea_1.setBounds(0, 408, 117, 318);
+        textArea_1.setBounds(0, 408, 117, 358);
         frame.getContentPane().add(textArea_1);
 
         JTextArea textArea_2 = new JTextArea();
@@ -171,16 +170,14 @@ public class ManagerUIBoard {
         member.setBounds(0, 391, 108, 16);
         frame.getContentPane().add(member);
 
-        JButton kickButton = new JButton("Kick");
-        kickButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            }
-        });
-        kickButton.setBounds(0, 725, 117, 42);
-        frame.getContentPane().add(kickButton);
-
 
 
     }
+
+    /*// 这段的用处
+    public void setFrame(ManagerUIBoard managerUIBoard) {
+        createWhiteBoard = managerUIBoard;
+    }*/
 }
+
 

@@ -1,17 +1,23 @@
-package manager;
+package client;
+
+import manager.ManagerUIBoard;
+import manager.Server;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.Socket;
 
-
-public class LoginUI {
+public class ApplyJoin {
 
     private JFrame frame;
 
     public static String address;
     public static int port;
     public static String username;
-    public ManagerUIBoard managerUIBoard;
+    public GuestUIBoard guestUIBoard;
+    public static ClientConnection clientConnection;
+
+    public static Socket socket;
     /**
      * Launch the application.
      */
@@ -28,13 +34,23 @@ public class LoginUI {
         } else {
             address = "localhost";
             port = 8080;
-            username = "Manager";
+            username = "User";
             System.out.println("Launch by default");
         }
+
+        try {
+            socket = new Socket(address, port);
+
+        } catch (Exception e) {
+            System.out.println("connection refused");
+            System.exit(1);
+            e.printStackTrace();
+        }
+        clientConnection = new ClientConnection(socket);
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    new LoginUI();
+                    new ApplyJoin();
 
 //                    LoginUI window = new LoginUI();
 //                    window.frame.setVisible(true);
@@ -43,13 +59,13 @@ public class LoginUI {
                 }
             }
         });
-        Server.launch(port, username);
+        clientConnection.start();
     }
 
     /**
      * Create the application.
      */
-    public LoginUI() {
+    public ApplyJoin() {
         initialize();
     }
 
@@ -78,15 +94,26 @@ public class LoginUI {
 
         addUserButton.addActionListener(e -> {
             if (e.getActionCommand().equals("ENTER")) {
-                username = userName.getText();
-                frame.dispose();
                 try {
-                    managerUIBoard = new ManagerUIBoard(username);
-                    /*//这段有什么用
-                    managerUIBoard.setFrame(managerUIBoard);*/
+                    username = userName.getText();
+                    clientConnection.out.write("Join\n");
+                    clientConnection.out.flush();
+                    if (clientConnection.getStatus().equals("ok")) {
+                        frame.dispose();
+                        guestUIBoard = new GuestUIBoard(username);
+                    }
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
+                /*username = userName.getText();
+                frame.dispose();
+                try {
+                    guestUIBoard = new GuestUIBoard(username);
+                    //这段有什么用
+                    managerUIBoard.setFrame(managerUIBoard);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }*/
             }
         });
 
