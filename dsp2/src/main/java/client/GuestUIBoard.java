@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 
 
 public class GuestUIBoard {
@@ -22,7 +23,7 @@ public class GuestUIBoard {
     static manager.ManagerUIBoard createWhiteBoard;
 
     static manager.CanvasPainter canvas;
-    public JList list;
+    public static JList memberList;
     public static int curX, curY;
     public static JTextArea chatArea;
 
@@ -43,14 +44,14 @@ public class GuestUIBoard {
     /**
      * Create the application.
      */
-    public GuestUIBoard(String userName) {
-        initialize(userName);
+    public GuestUIBoard(ClientConnection clientConnection, String userName) throws IOException {
+        initialize(clientConnection, userName);
     }
 
     /**
      * Initialize the contents of the frame.
      */
-    private void initialize(String userName) {
+    private void initialize(ClientConnection clientConnection, String userName) throws IOException {
 
         frame = new JFrame();
         frame.setBounds(100, 100, 1600, 800);
@@ -147,9 +148,15 @@ public class GuestUIBoard {
         chatArea.setBounds(1284, 53, 310, 578);
         frame.getContentPane().add(chatArea);
 
-        JTextArea memberList = new JTextArea();
+        /*JTextArea memberList = new JTextArea();
         memberList.setLineWrap(true);
         memberList.setBounds(0, 408, 117, 358);
+        frame.getContentPane().add(memberList);*/
+        memberList = new JList();
+        memberList.setBounds(0, 406, 117, 320);
+        String myName = userName;
+        String[] nameList = {myName};
+        memberList.setListData(nameList);
         frame.getContentPane().add(memberList);
 
         JTextArea sendMessArea = new JTextArea();

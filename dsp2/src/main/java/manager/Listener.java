@@ -97,7 +97,7 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
                 graphics2D.setStroke(new BasicStroke(thickness));
 
                 graphics2D.drawLine(fromX, fromY, toX, toY);
-                record = "line " + this.thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " " + " |";
+                record = "line " + this.thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " |";
                 recordList.add(record);
                 break;
             case "oval":
@@ -114,7 +114,7 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
                 graphics2D.setStroke(new BasicStroke(thickness));
                 int diameter = Math.min(Math.abs(fromX - toX), Math.abs(fromY - toY));
                 graphics2D.drawOval(Math.min(fromX,toX),Math.min(fromY,toY),diameter,diameter);
-                record = "circle" + thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY;
+                record = "circle" + thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " |";
                 recordList.add(record);
                 break;
             case "rect":
@@ -122,7 +122,7 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
                 graphics2D.setStroke(new BasicStroke(thickness));
 //                g.drawRect(Math.min(x2,x3),Math.min(y2,y3),Math.abs(x3-x2),Math.abs(y3-y2))
                 graphics2D.drawRect(Math.min(fromX, toX), Math.min(fromY, toY), Math.abs(fromX - toX), Math.abs(fromY - toY));
-                record = "rect" + thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY;
+                record = "rect" + thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " |";
                 recordList.add(record);
                 break;
         }
@@ -173,4 +173,5 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
     public void cleanHistoryRecord() {
         recordList.clear();
     }
+
 }

@@ -1,8 +1,12 @@
 package manager;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
 
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Connection extends Thread {
@@ -17,11 +21,21 @@ public class Connection extends Thread {
             String req;
             while ((req = in.readLine()) != null) {
                 String[] outList = req.split(" ", 2);
+                System.out.println(req);
                 switch (outList[0]) {
+                    case "begin":
+                        ArrayList<String> historyDraw = ManagerUIBoard.createDrawListener.getRecordList();
+                        System.out.println(historyDraw);
+                        try {
+                            ConnectionMethods.sendPaintToAllUser(historyDraw);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     case "join":
                         String receiveName = outList[1];
-                        if (Server.memberList.contains(receiveName)) {
-                            out.write("not approve\n");
+                        if (Server.memberMap.containsKey(receiveName)) {
+                            out.write(Consts.NOT_APPROVE +"\n");
                             out.flush();
                         } else {
                             int verify = 0;
@@ -31,21 +45,35 @@ public class Connection extends Thread {
                                 e.printStackTrace();
                             }
                             if (verify == JOptionPane.YES_OPTION) {
-                                if (Server.memberList.contains(receiveName)) {
+                                if (Server.memberMap.containsKey(receiveName)) {
                                     try {
-                                        out.write("not approve\n");
+                                        out.write(Consts.NOT_APPROVE +"\n");
                                         out.flush();
-                                        Server.connections.remove(this);
+                                        Server.memberMap.remove(receiveName);
                                         socket.close();
                                         break;
                                     } catch (Exception e) {
-                                        Server.connections.remove(this);
+                                        Server.memberMap.remove(receiveName);
                                         e.printStackTrace();
                                     }
                                 } else {
                                     try {
-                                        Server.memberList.add(receiveName);
-                                        out.write("approve enter\n");
+                                        Server.memberMap.put(receiveName,this);
+                                        String[] strings = Server.memberMap.keySet().toArray(new String[0]);
+                                        System.out.println(Server.memberMap.keySet());
+
+                                        JsonArray jsonArrayMem = new JsonArray();
+                                        for (String member : Server.memberMap.keySet()) {
+                                            final JsonPrimitive jsonMember = new JsonPrimitive(member);
+                                            jsonArrayMem.add(jsonMember);
+                                        }
+
+                                        HashMap map = new Gson().fromJson("{\"feedback\":\"approve enter\"," +
+                                                "\"memberList\":" + jsonArrayMem + "}", HashMap.class);
+                                        String jsonCommand = new Gson().toJson(map);
+                                        System.out.println(jsonCommand);
+                                        ManagerUIBoard.memberList.setListData(strings);
+                                        out.write(jsonCommand + "\n");
                                         out.flush();
                                     } catch (Exception e) {
 
@@ -56,7 +84,7 @@ public class Connection extends Thread {
                                     || verify == JOptionPane.NO_OPTION) {
                                 out.write("reject");
                                 out.flush();
-                                Server.connections.remove(this);
+                                Server.memberMap.remove(receiveName);
                             }
                         }
                         break;

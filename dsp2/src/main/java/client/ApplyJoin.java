@@ -5,6 +5,7 @@ import manager.Server;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
@@ -67,14 +68,17 @@ public class ApplyJoin {
     /**
      * Create the application.
      */
-    public ApplyJoin() {
+    public ApplyJoin() throws IOException {
         initialize();
     }
 
     /**
      * Initialize the contents of the frame.
      */
-    private void initialize() {
+    private void initialize() throws IOException {
+        clientConnection.out.write("begin" + "\n");
+        clientConnection.out.flush();
+
         frame = new JFrame();
         frame.setBounds(100, 100, 450, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -111,7 +115,7 @@ public class ApplyJoin {
                     System.out.println("getStatus() is " + status);
                     if (status.equals("approve enter")) {
                         frame.dispose();
-                        guestUIBoard = new GuestUIBoard(username);
+                        guestUIBoard = new GuestUIBoard(clientConnection, username);
                     }
                 } catch (Exception exception) {
                     exception.printStackTrace();

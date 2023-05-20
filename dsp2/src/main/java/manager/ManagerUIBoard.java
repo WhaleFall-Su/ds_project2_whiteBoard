@@ -19,10 +19,9 @@ public class ManagerUIBoard {
     static ManagerUIBoard createWhiteBoard;
 
     static CanvasPainter canvas;
-    public JList list;
+    public static JList memberList;
     public static int curX, curY;
     public static JTextArea chatArea;
-    public static JTextArea memberList;
 
     /*// 得到图标图片，存在问题
     ImageIcon circle = new ImageIcon("/icon/circle.png");
@@ -154,12 +153,19 @@ public class ManagerUIBoard {
         chatArea.setBounds(1284, 53, 310, 578);
         frame.getContentPane().add(chatArea);
 
-        JTextArea memberList = new JTextArea();
+        /*JTextArea memberList = new JTextArea();
         memberList.setLineWrap(true);
         memberList.setBounds(0, 408, 117, 318);
-        /*for (String member : Server.memberList) {
+        for (String member : Server.memberList) {
             memberList.setText(member + "\n");
-        }*/
+        }
+        frame.getContentPane().add(memberList);*/
+
+        memberList = new JList();
+        memberList.setBounds(0, 406, 117, 320);
+        String myName = userName;
+        String[] nameList = {myName};
+        memberList.setListData(nameList);
         frame.getContentPane().add(memberList);
 
         JTextArea sendMessArea = new JTextArea();
@@ -191,6 +197,6 @@ public class ManagerUIBoard {
 
 
 
+
     }
 }
-

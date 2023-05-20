@@ -10,16 +10,17 @@ import java.util.HashMap;
 
 public class Server {
 
-    public static ArrayList<Connection> connections = new ArrayList<Connection>();
-    public static ArrayList<String> memberList = new ArrayList<String>();
-//    public static ArrayList<HashMap<String, Connection>> memberList = new ArrayList<>();
+    /*public static ArrayList<Connection> connections = new ArrayList<Connection>();
+    public static ArrayList<String> memberList = new ArrayList<String>();*/
+    public static HashMap<String, Connection> memberMap = new HashMap<>();
     private static int clientNum = 0;
 
     public static void launch(int port, String username) {
         try {
             ServerSocket listeningSocket = new ServerSocket(port);
             Socket clientSocket = null;
-            memberList.add(username);
+            /*memberList.add(username);*/
+
             // assign a connection for each client request, it is multi-thread
             while (true) {
                 try {
@@ -27,7 +28,7 @@ public class Server {
                     clientNum += 1;
                     System.out.println(clientNum + " request to connect");
                     Connection connection = new Connection(clientSocket);
-                    connections.add(connection);
+                    memberMap.put(username,connection);
                     connection.start();
 
                 } catch (SocketException e) {
