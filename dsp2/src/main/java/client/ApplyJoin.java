@@ -1,12 +1,13 @@
 package client;
 
-import manager.ManagerUIBoard;
-import manager.Server;
+import com.google.gson.Gson;
+import manager.Consts;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class ApplyJoin {
@@ -16,7 +17,7 @@ public class ApplyJoin {
     public static String address;
     public static int port;
     public static String username;
-    public GuestUIBoard guestUIBoard;
+    public static ClientUIBoard clientUIBoard;
     public static ClientConnection clientConnection;
 
     public static Socket socket;
@@ -49,8 +50,8 @@ public class ApplyJoin {
             e.printStackTrace();
         }
         clientConnection = new ClientConnection(socket);
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
+        EventQueue.invokeLater(() -> {
+            /*public void run() {
                 try {
                     new ApplyJoin();
 
@@ -59,6 +60,14 @@ public class ApplyJoin {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }*/
+            try {
+                new ApplyJoin();
+
+//                    LoginUI window = new LoginUI();
+//                    window.frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
         clientConnection.start();
@@ -76,9 +85,8 @@ public class ApplyJoin {
      * Initialize the contents of the frame.
      */
     private void initialize() throws IOException {
-        clientConnection.out.write("begin" + "\n");
-        clientConnection.out.flush();
-
+        /*clientConnection.out.write("begin" + "\n");
+        clientConnection.out.flush();*/
         frame = new JFrame();
         frame.setBounds(100, 100, 450, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -102,7 +110,12 @@ public class ApplyJoin {
             if (e.getActionCommand().equals("ENTER")) {
                 try {
                     username = userNameArea.getText();
-                    clientConnection.out.write("join " + username + "\n");
+
+                    HashMap map = new Gson().fromJson("{\"feedback\":\"join\"," +
+                            "\"userName\":" + username + "}", HashMap.class);
+                    String join = new Gson().toJson(map);
+
+                    clientConnection.out.write(join + "\n");
                     clientConnection.out.flush();
                     int time = 0;
                     while (clientConnection.getStatus().equals("wait") && time < 100000) {
@@ -115,20 +128,24 @@ public class ApplyJoin {
                     System.out.println("getStatus() is " + status);
                     if (status.equals("approve enter")) {
                         frame.dispose();
-                        guestUIBoard = new GuestUIBoard(clientConnection, username);
+                        clientUIBoard = new ClientUIBoard(clientConnection, username);
+                        /*clientUIBoard.setFrame(clientUIBoard);*/
+                    } else if (status.equals(Consts.NOT_APPROVE)) {
+                        JOptionPane.showMessageDialog(frame, "Username exists");
+                        clientConnection.setStatus("wait");
+                    } else if (status.equals("reject")) {
+                        JOptionPane.showMessageDialog(frame, "Refused by Manager");
+                        frame.dispose();
+                        try {
+                            socket.close();
+                            System.exit(1);
+                        } catch (Exception exception) {
+
+                        }
                     }
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
-                /*username = userName.getText();
-                frame.dispose();
-                try {
-                    guestUIBoard = new GuestUIBoard(username);
-                    //这段有什么用
-                    managerUIBoard.setFrame(managerUIBoard);
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }*/
             }
         });
 

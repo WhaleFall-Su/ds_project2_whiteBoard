@@ -18,7 +18,7 @@ public class CanvasPainter extends JPanel {
 
     public void draw(Graphics2D graphics2D, ArrayList<String> recordList) {
         try {
-            String[] recordArr = recordList.toArray(new String[recordList.size()]);
+            String[] recordArr = recordList.toArray(new String[0]);
             for (String line : recordArr) {
                 String[] record = line.split(" ");
                 int fromX, fromY, toX, toY, thickness, red, green, blue;
@@ -26,7 +26,8 @@ public class CanvasPainter extends JPanel {
                 if (record[1].equals("|")) {
                     continue;
                 }
-                System.out.println("line");
+                System.out.println(line);
+                System.out.println(record[0]);
                 switch (record[0]) {
                     case "line":
                         System.out.println("get");

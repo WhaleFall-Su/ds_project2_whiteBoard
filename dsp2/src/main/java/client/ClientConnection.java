@@ -4,10 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import javax.imageio.IIOException;
+import javax.swing.*;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,29 +30,51 @@ public class ClientConnection extends Thread{
                 String req = in.readLine();
                 //{"feedback":"approve enter","memberList":["Manager","hu","hy"]}
                 System.out.println(req);
+
+
                 HashMap reqMap = new Gson().fromJson(req, HashMap.class);
                 status = reqMap.get("feedback").toString();
-                ArrayList<String> userList = new ArrayList<>();
+                ArrayList<String> historyDraw = new ArrayList<>();
 
-                // Get the array in json
-                JsonArray jsonArray = new JsonArray();
-                JsonParser parser = new JsonParser();
-                jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("memberList");
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    userList.add(jsonArray.get(i).toString());
-                }
 //                System.out.println("status is " + userList.toString());
                 switch (status) {
                     case "approve entre":
-                        String[] strings = {"ada", "dad"};
-                        System.out.println("status is " + userList.toString());
-                        GuestUIBoard.memberList.setListData(strings);
-                        out.write("draw" + "\n");
-                        out.flush();
+
+                        break;
+                    case "draw":
+                        // Get the array in json
+                        JsonArray jsonArray = new JsonArray();
+                        JsonParser parser = new JsonParser();
+                        jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("historyDraw");
+                        if (jsonArray.size() != 0) {
+                            for (int i = 0; i < jsonArray.size(); i++) {
+                                historyDraw.add(jsonArray.get(i).toString().replace("\"",""));
+                            }
+                            System.out.println(historyDraw);
+                            for (String draw : historyDraw) {
+                                ClientUIBoard.createDrawListener.updateRecord(draw);
+                                ClientUIBoard.canvas.repaint();
+                            }
+//                        ClientUIBoard.canvas.setList(historyDraw);
+
+                        }
+
+
+
                         break;
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            try {
+                /*if (kick) {
+                    JOptionPane.showMessageDialog(ApplyJoin.clientUIBoard.frame, "Disconnected with server");
+                }*/
+                System.out.println("exit");
+                JOptionPane.showMessageDialog(ApplyJoin.clientUIBoard.frame, "Disconnected with server");
+            } catch (Exception exception) {
+
+            }
+            System.exit(0);
             e.printStackTrace();
         }
     }

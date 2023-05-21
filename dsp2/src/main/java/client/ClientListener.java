@@ -1,16 +1,21 @@
-package manager;
+package client;
+
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+import manager.ConnectionMethods;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Listener implements ActionListener, MouseListener, MouseMotionListener {
+public class ClientListener implements ActionListener, MouseListener, MouseMotionListener {
     JFrame frame;
     Graphics2D graphics2D;
     int thickness = 1;
@@ -24,7 +29,8 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
     ArrayList<String> recordList = new ArrayList<String>();
 
 
-    public Listener(JFrame frame) {
+
+    public ClientListener(JFrame frame) {
         this.frame = frame;
     }
 
@@ -37,6 +43,12 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
         //调色盘
         switch (e.getActionCommand()) {
             case "color":
+                /*try {
+                    ApplyJoin.clientConnection.out.write("draw");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }*/
+
                 final JFrame jf = new JFrame("color panel");
                 jf.setSize(340, 340);
                 jf.setLocationRelativeTo(null);
@@ -132,15 +144,20 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
                 break;
         }
         try {
-            JsonArray jsonArrayMem = new JsonArray();
-            final JsonPrimitive jsonDraw = new JsonPrimitive(record);
-            jsonArrayMem.add(jsonDraw);
+            if (record != null) {
+                JsonArray jsonArrayMem = new JsonArray();
+                final JsonPrimitive jsonDraw = new JsonPrimitive(record);
+                jsonArrayMem.add(jsonDraw);
 
-            HashMap map = new Gson().fromJson("{\"feedback\":\"draw\"," +
-                    "\"historyDraw\":" + jsonArrayMem + "}", HashMap.class);
-            String jsonCommand = new Gson().toJson(map);
-            System.out.println("paint " + jsonCommand);
-            ConnectionMethods.sendToAllUser(jsonCommand);
+                HashMap map = new Gson().fromJson("{\"feedback\":\"draw\"," +
+                        "\"historyDraw\":" + jsonArrayMem + "}", HashMap.class);
+                String jsonCommand = new Gson().toJson(map);
+                System.out.println("paint " + jsonCommand);
+                //怎么传给master
+                ApplyJoin.clientConnection.out.write(jsonCommand + "\n");
+                ApplyJoin.clientConnection.out.flush();
+            }
+
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -159,19 +176,7 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        /*try {
-            JsonArray jsonArrayMem = new JsonArray();
-            final JsonPrimitive jsonDraw = new JsonPrimitive(record);
-            jsonArrayMem.add(jsonDraw);
 
-            HashMap map = new Gson().fromJson("{\"feedback\":\"draw\"," +
-                    "\"historyDraw\":" + jsonArrayMem + "}", HashMap.class);
-            String jsonCommand = new Gson().toJson(map);
-
-            ConnectionMethods.sendToAllUser(jsonCommand);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }*/
     }
 
     @Override
@@ -193,6 +198,7 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
     }
 
     public void updateRecord(String line) {
+        System.out.println("add line: " +line);
         recordList.add(line);
     }
 
@@ -201,3 +207,4 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
     }
 
 }
+

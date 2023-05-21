@@ -1,27 +1,35 @@
-package manager;
+package client;
 
+
+import com.google.gson.Gson;
+import manager.CanvasPainter;
+import manager.Listener;
+import manager.ManagerUIBoard;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 
-public class ManagerUIBoard {
+public class ClientUIBoard {
 
-    static Listener createDrawListener;
+    static ClientListener createDrawListener;
 
     public JFrame frame;
     int width;
     int height;
 //    private String file = "./save/white_board";
 
-    static ManagerUIBoard createWhiteBoard;
 
-    static CanvasPainter canvas;
+    static client.CanvasPainter canvas;
     public static JList memberList;
     public static int curX, curY;
     public static JTextArea chatArea;
+    public static ClientUIBoard createClientUIBoard;
 
     /*// 得到图标图片，存在问题
     ImageIcon circle = new ImageIcon("/icon/circle.png");
@@ -40,25 +48,33 @@ public class ManagerUIBoard {
     /**
      * Create the application.
      */
-    public ManagerUIBoard(String userName) {
-        initialize(userName);
+    public ClientUIBoard(ClientConnection clientConnection, String userName) {
+        try {
+            initialize(clientConnection, userName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
-
-    public int showRequest(String userName) {
-        int option = JOptionPane.showConfirmDialog(null, userName + " wants to join your white board",
-                "Confirm", JOptionPane.INFORMATION_MESSAGE);
-        return option;
-    }
     /**
      * Initialize the contents of the frame.
      */
-    private void initialize(String userName) {
+    private void initialize(ClientConnection clientConnection, String userName) {
+        HashMap map = new Gson().fromJson("{\"feedback\":\"begin\"" + "}", HashMap.class);
+        String begin = new Gson().toJson(map);
+        try {
+            clientConnection.out.write(begin + "\n");
+            clientConnection.out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         frame = new JFrame();
         frame.setBounds(100, 100, 1600, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        createDrawListener = new Listener(frame);
+        createDrawListener = new ClientListener(frame);
         frame.getContentPane().setLayout(null);
 
 
@@ -71,10 +87,7 @@ public class ManagerUIBoard {
         //        toolPanel.setBounds(0,0,80,450);
         //        toolPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        // menu
-        JComboBox menu = new JComboBox();
-        toolPanel.add(menu);
-        menu.setModel(new DefaultComboBoxModel(new String[]{"New", "Save", "Save as", "Open", "Exit"}));
+
 
         // tool
         JButton lineButton = new JButton("line");
@@ -130,7 +143,7 @@ public class ManagerUIBoard {
         //画板
         frame.getContentPane().setLayout(null);
         frame.getContentPane().add(toolPanel);
-        canvas = new CanvasPainter();
+        canvas = new client.CanvasPainter();
         canvas.setBorder(null);
         canvas.setBounds(120, 20, 1152, 748);
         width = canvas.getWidth();
@@ -155,12 +168,8 @@ public class ManagerUIBoard {
 
         /*JTextArea memberList = new JTextArea();
         memberList.setLineWrap(true);
-        memberList.setBounds(0, 408, 117, 318);
-        for (String member : Server.memberList) {
-            memberList.setText(member + "\n");
-        }
+        memberList.setBounds(0, 408, 117, 358);
         frame.getContentPane().add(memberList);*/
-
         memberList = new JList();
         memberList.setBounds(0, 406, 117, 320);
         String myName = userName;
@@ -186,18 +195,17 @@ public class ManagerUIBoard {
         member.setBounds(0, 391, 108, 16);
         frame.getContentPane().add(member);
 
-        JButton kickButton = new JButton("Kick");
-        kickButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            }
-        });
-        kickButton.setBounds(0, 725, 117, 42);
-        frame.getContentPane().add(kickButton);
+
 
     }
 
-
-    public void setFrame(ManagerUIBoard managerUIBoard) {
-        createWhiteBoard = managerUIBoard;
+    // 这段的用处
+    public void setFrame(ClientUIBoard clientUIBoard) {
+        createClientUIBoard = clientUIBoard;
     }
 }
+
+
+
+
+

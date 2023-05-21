@@ -1,11 +1,11 @@
-package manager;
+package test;
+
+import manager.Connection;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -17,25 +17,25 @@ public class Server {
     private static int clientNum = 0;
 
     public static void launch(int port, String username) {
-        Connection connection = null;
-        ServerSocket server = null;
         try {
-            server = new ServerSocket(port);
-            Socket clientSocket;
+            ServerSocket listeningSocket = new ServerSocket(port);
+            Socket clientSocket = null;
             /*memberList.add(username);*/
 
             // assign a connection for each client request, it is multi-thread
             while (true) {
                 try {
-                    clientSocket = server.accept();
+                    clientSocket = listeningSocket.accept();
                     clientNum += 1;
                     System.out.println(clientNum + " request to connect");
-                    connection = new Connection(clientSocket);
-                    memberMap.put(username, connection);
+                    Connection connection = new Connection(clientSocket);
+                    memberMap.put(username,connection);
                     connection.start();
-                } catch (Exception e) {
-                    System.out.println("Connection fail");
-                    System.exit(1);
+
+                } catch (SocketException e) {
+                    break;
+                } catch (IOException e) {
+                    break;
                 }
             }
         } catch (Exception e) {
