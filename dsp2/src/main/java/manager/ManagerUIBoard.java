@@ -16,7 +16,9 @@ public class ManagerUIBoard {
     int height;
 //    private String file = "./save/white_board";
 
-    static ManagerUIBoard createWhiteBoard;
+
+
+    static ManagerUIBoard createManagerUI;
 
     static CanvasPainter canvas;
     public static JList memberList;
@@ -198,6 +200,9 @@ public class ManagerUIBoard {
 
 
     public void setFrame(ManagerUIBoard managerUIBoard) {
-        createWhiteBoard = managerUIBoard;
+        createManagerUI = managerUIBoard;
+    }
+    public static ManagerUIBoard getCreateManagerUI() {
+        return createManagerUI;
     }
 }

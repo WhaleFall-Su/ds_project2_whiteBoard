@@ -1,4 +1,5 @@
 package manager;
+import client.ApplyJoin;
 import client.ClientUIBoard;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -26,21 +27,18 @@ public class Connection extends Thread {
             while (true) {
 //                socket.setKeepAlive(true);
                 if (isServerClose(socket)) {
-                    Server.memberMap.remove(receiveName);
+                    Server.memberList.remove(receiveName);
+                    Server.connections.remove(this);
                     System.out.println(receiveName + " has left");
-                    System.out.println("members are: " + Server.memberMap.keySet());
-                    break;
-                    /*try
-                    {
-                        socket.close();
-                        System.out.println(receiveName + " has left");
-                        System.out.println("members are: " + Server.memberMap.keySet());
-                        break;
-                    }
-                    catch (IOException e)
-                    {
+                    JOptionPane.showMessageDialog(ManagerUIBoard.getCreateManagerUI().frame, "User " + receiveName+ " has left");
+                    System.out.println("members are: " + Server.memberList.toString());
 
-                    }*/
+                    try {
+                        socket.close();
+                        break;
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
                 } else {
                     while ((req = in.readLine()) != null) {
 
@@ -84,7 +82,7 @@ public class Connection extends Thread {
                                 break;
                             case "join":
                                 receiveName = reqMap.get("userName").toString();;
-                                if (Server.memberMap.containsKey(receiveName)) {
+                                if (Server.memberList.contains(receiveName)) {
                                     HashMap map = new Gson().fromJson("{\"feedback\":\"enter not approve\"" + "}", HashMap.class);
                                     String jsonCommand = new Gson().toJson(map);
                                     out.write(jsonCommand + "\n");
@@ -97,25 +95,25 @@ public class Connection extends Thread {
                                         e.printStackTrace();
                                     }
                                     if (verify == JOptionPane.YES_OPTION) {
-                                        if (Server.memberMap.containsKey(receiveName)) {
+                                        if (Server.memberList.contains(receiveName)) {
                                             try {
                                                 out.write(Consts.NOT_APPROVE + "\n");
                                                 out.flush();
-                                                Server.memberMap.remove(receiveName);
+                                                Server.connections.remove(this);
                                                 socket.close();
                                                 break;
                                             } catch (Exception e) {
-                                                Server.memberMap.remove(receiveName);
+                                                Server.connections.remove(this);
                                                 e.printStackTrace();
                                             }
                                         } else {
                                             try {
-                                                Server.memberMap.put(receiveName, this);
-                                                String[] strings = Server.memberMap.keySet().toArray(new String[0]);
-                                                System.out.println(Server.memberMap.keySet());
+                                                Server.memberList.add(receiveName);
+                                                String[] strings = Server.memberList.toArray(new String[0]);
+                                                System.out.println(Server.memberList.toString());
 
                                                 JsonArray jsonArrayMem = new JsonArray();
-                                                for (String member : Server.memberMap.keySet()) {
+                                                for (String member : Server.memberList) {
                                                     final JsonPrimitive jsonMember = new JsonPrimitive(member);
                                                     jsonArrayMem.add(jsonMember);
                                                 }
@@ -139,7 +137,7 @@ public class Connection extends Thread {
                                         System.out.println(jsonCommand);
                                         out.write(jsonCommand + "\n");
                                         out.flush();
-                                        Server.memberMap.remove(receiveName);
+                                        Server.connections.remove(this);
                                     }
                                 }
                                 break;
@@ -147,109 +145,6 @@ public class Connection extends Thread {
                     }
                 }
             }
-            /*while ((req = in.readLine()) != null) {
-
-                HashMap reqMap = new Gson().fromJson(req, HashMap.class);
-                String status = reqMap.get("feedback").toString();
-//                        String[] outList = req.split(" ", 2);
-                System.out.println(req);
-                switch (status) {
-                    case "draw":
-                        try {
-                            // 将消息发送给所有的用户
-                            ConnectionMethods.sendToAllUser(req);
-
-                            ArrayList<String> historyDraw = new ArrayList<>();
-                            JsonArray jsonArray = new JsonArray();
-                            JsonParser parser = new JsonParser();
-                            jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("historyDraw");
-                            for (int i = 0; i < jsonArray.size(); i++) {
-                                // json解析出来的字符会包含"，所以要去掉
-                                historyDraw.add(jsonArray.get(i).toString().replace("\"",""));
-                            }
-                            System.out.println("draw from client: " + historyDraw);
-
-                            // 更新画画record
-                            for (String draw : historyDraw) {
-                                ManagerUIBoard.createDrawListener.updateRecord(draw);
-                                ManagerUIBoard.canvas.repaint();
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    case "begin":
-                        ArrayList<String> historyDraw = ManagerUIBoard.createDrawListener.getRecordList();
-//                        System.out.println(historyDraw);
-                        try {
-                            ConnectionMethods.sendPaintToAllUser(historyDraw);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case "join":
-                        receiveName = reqMap.get("userName").toString();;
-                        if (Server.memberMap.containsKey(receiveName)) {
-                            HashMap map = new Gson().fromJson("{\"feedback\":\"enter not approve\"" + "}", HashMap.class);
-                            String jsonCommand = new Gson().toJson(map);
-                            out.write(jsonCommand + "\n");
-                            out.flush();
-                        } else {
-                            int verify = 0;
-                            try {
-                                verify = ConnectionMethods.verifyUser(receiveName);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            if (verify == JOptionPane.YES_OPTION) {
-                                if (Server.memberMap.containsKey(receiveName)) {
-                                    try {
-                                        out.write(Consts.NOT_APPROVE + "\n");
-                                        out.flush();
-                                        Server.memberMap.remove(receiveName);
-                                        socket.close();
-                                        break;
-                                    } catch (Exception e) {
-                                        Server.memberMap.remove(receiveName);
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    try {
-                                        Server.memberMap.put(receiveName, this);
-                                        String[] strings = Server.memberMap.keySet().toArray(new String[0]);
-                                        System.out.println(Server.memberMap.keySet());
-
-                                        JsonArray jsonArrayMem = new JsonArray();
-                                        for (String member : Server.memberMap.keySet()) {
-                                            final JsonPrimitive jsonMember = new JsonPrimitive(member);
-                                            jsonArrayMem.add(jsonMember);
-                                        }
-
-                                        HashMap map = new Gson().fromJson("{\"feedback\":\"approve enter\"," +
-                                                "\"memberList\":" + jsonArrayMem + "}", HashMap.class);
-                                        String jsonCommand = new Gson().toJson(map);
-                                        System.out.println(jsonCommand);
-                                        ManagerUIBoard.memberList.setListData(strings);
-                                        out.write(jsonCommand + "\n");
-                                        out.flush();
-                                    } catch (Exception e) {
-
-                                    }
-
-                                }
-                            } else if (verify == JOptionPane.CANCEL_OPTION || verify == JOptionPane.CLOSED_OPTION
-                                    || verify == JOptionPane.NO_OPTION) {
-                                HashMap map = new Gson().fromJson("{\"feedback\":\"reject\"" + "}", HashMap.class);
-                                String jsonCommand = new Gson().toJson(map);
-                                System.out.println(jsonCommand);
-                                out.write(jsonCommand + "\n");
-                                out.flush();
-                                Server.memberMap.remove(receiveName);
-                            }
-                        }
-                        break;
-                }
-            }*/
 
 
 
@@ -274,9 +169,9 @@ public class Connection extends Thread {
         }
     }
 
-    public void clientLeave(String clientName) {
+    /*public void clientLeave(String clientName) {
         Server.memberMap.remove(clientName);
-    }
+    }*/
 
     public Boolean isServerClose(Socket socket){
         try{

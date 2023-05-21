@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class ClientConnection extends Thread{
@@ -50,16 +51,15 @@ public class ClientConnection extends Thread{
                             for (int i = 0; i < jsonArray.size(); i++) {
                                 historyDraw.add(jsonArray.get(i).toString().replace("\"",""));
                             }
-                            System.out.println(historyDraw);
-                            for (String draw : historyDraw) {
+                            String[] recordArr = historyDraw.toArray(new String[0]);
+                            System.out.println(Arrays.toString(recordArr));
+                            for (String draw : recordArr) {
                                 ClientUIBoard.createDrawListener.updateRecord(draw);
                                 ClientUIBoard.canvas.repaint();
                             }
 //                        ClientUIBoard.canvas.setList(historyDraw);
 
                         }
-
-
 
                         break;
                 }

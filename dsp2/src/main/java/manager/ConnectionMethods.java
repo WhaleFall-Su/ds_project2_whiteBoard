@@ -11,32 +11,29 @@ import java.util.HashMap;
 
 public class ConnectionMethods {
     public static synchronized int verifyUser(String userName) {
-        int result = LoginUI.managerUIBoard.showRequest(userName);
+        // 这里设置为-1是因为如果manager没有开启board，而有用户申请进入，那么会收到拒绝的消息
+        int result = -1;
+        if (LoginUI.managerUIBoard != null) {
+            result = LoginUI.managerUIBoard.showRequest(userName);
+            System.out.println("result is " + result);
+        }
         return result;
+
     }
 
     public static void sendToAllUser(String mess) {
-        System.out.println("still have users num: " + Server.memberMap.size());
-        for (String mem : Server.memberMap.keySet()) {
-            try {
-                Connection st = Server.memberMap.get(mem);
-                st.out.write(mess + "\n");
-                st.out.flush();
-            } catch (SocketException socketException) {
-                System.out.println("remove " + mem);
-                Server.memberMap.remove(mem);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        /*for (Connection st : Server.memberMap.values()) {
+        System.out.println("still have users num: " + Server.memberList.size());
+
+        for (Connection st : Server.connections) {
             try {
                 st.out.write(mess + "\n");
                 st.out.flush();
             } catch (SocketException socketException) {
 
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }*/
+        }
     }
 
     public static void sendPaintToAllUser(ArrayList<String> historyDraw) throws IOException {
@@ -58,7 +55,7 @@ public class ConnectionMethods {
         String jsonCommand = new Gson().toJson(map);
 
         System.out.println(jsonCommand);
-        for (Connection st : Server.memberMap.values()) {
+        for (Connection st : Server.connections) {
 //            st.out.write("draw|" + history + "\n");
             st.out.write(jsonCommand + "\n");
             st.out.flush();

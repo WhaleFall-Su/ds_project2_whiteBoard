@@ -130,6 +130,16 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
                 record = "rect " + thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " |";
                 recordList.add(record);
                 break;
+            case "A":
+                String text = JOptionPane.showInputDialog("Please enter text");
+                if (text != null) {
+                    Font f = new Font(null, Font.PLAIN, this.thickness + 10);
+                    graphics2D.setFont(f);
+                    graphics2D.drawString(text, toX, toY);
+                    rgb = colorToString(color);
+                    record = "Text " + thickness + " " + rgb + " " + toX + " " + toY + text + " |";
+                    recordList.add(record);
+                }
         }
         try {
             JsonArray jsonArrayMem = new JsonArray();

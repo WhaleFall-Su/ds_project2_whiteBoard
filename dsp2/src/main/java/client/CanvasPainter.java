@@ -1,11 +1,13 @@
 package client;
 
+import manager.Consts;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
 public class CanvasPainter extends JPanel {
-    private ArrayList<String> recordList = new ArrayList<String>();
+    private ArrayList<String> recordList = new ArrayList<>();
 
     public void setList(ArrayList<String> recordList) {
         this.recordList = recordList;
@@ -44,6 +46,15 @@ public class CanvasPainter extends JPanel {
                         toY = Integer.parseInt(record[8]);
                         graphics2D.drawLine(fromX, fromY, toX, toY);
                         break;
+                    case "circle":
+                        
+
+                    case "oval":
+
+                    case "rect":
+
+                    case "text":
+
                 }
             }
         } catch (Exception e) {

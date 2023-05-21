@@ -50,24 +50,14 @@ public class ApplyJoin {
             e.printStackTrace();
         }
         clientConnection = new ClientConnection(socket);
-        EventQueue.invokeLater(() -> {
-            /*public void run() {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
                 try {
                     new ApplyJoin();
 
-//                    LoginUI window = new LoginUI();
-//                    window.frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }*/
-            try {
-                new ApplyJoin();
-
-//                    LoginUI window = new LoginUI();
-//                    window.frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         });
         clientConnection.start();
@@ -128,8 +118,18 @@ public class ApplyJoin {
                     System.out.println("getStatus() is " + status);
                     if (status.equals("approve enter")) {
                         frame.dispose();
+
+                        /*HashMap beginMap = new Gson().fromJson("{\"feedback\":\"begin\"" + "}", HashMap.class);
+                        String begin = new Gson().toJson(beginMap);
+                        try {
+                            clientConnection.out.write(begin + "\n");
+                            clientConnection.out.flush();
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                        }*/
+
                         clientUIBoard = new ClientUIBoard(clientConnection, username);
-                        /*clientUIBoard.setFrame(clientUIBoard);*/
+                        clientUIBoard.setFrame(clientUIBoard);
                     } else if (status.equals(Consts.NOT_APPROVE)) {
                         JOptionPane.showMessageDialog(frame, "Username exists");
                         clientConnection.setStatus("wait");

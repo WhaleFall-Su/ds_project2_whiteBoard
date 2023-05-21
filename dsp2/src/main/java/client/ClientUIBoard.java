@@ -61,14 +61,6 @@ public class ClientUIBoard {
      * Initialize the contents of the frame.
      */
     private void initialize(ClientConnection clientConnection, String userName) {
-        HashMap map = new Gson().fromJson("{\"feedback\":\"begin\"" + "}", HashMap.class);
-        String begin = new Gson().toJson(map);
-        try {
-            clientConnection.out.write(begin + "\n");
-            clientConnection.out.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
 
         frame = new JFrame();
@@ -195,6 +187,14 @@ public class ClientUIBoard {
         member.setBounds(0, 391, 108, 16);
         frame.getContentPane().add(member);
 
+        HashMap map = new Gson().fromJson("{\"feedback\":\"begin\"" + "}", HashMap.class);
+        String begin = new Gson().toJson(map);
+        try {
+            clientConnection.out.write(begin + "\n");
+            clientConnection.out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }

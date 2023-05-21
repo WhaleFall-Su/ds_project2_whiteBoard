@@ -83,8 +83,8 @@ public class LoginUI {
                 try {
 
                     managerUIBoard = new ManagerUIBoard(username);
-                    /*//这段有什么用
-                    managerUIBoard.setFrame(managerUIBoard);*/
+                    //这段用来展示当用户退出时，会有一个弹窗提示
+                    managerUIBoard.setFrame(managerUIBoard);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
