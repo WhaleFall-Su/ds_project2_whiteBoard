@@ -13,7 +13,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Connection extends Thread {
+public class Connection extends Thread implements ManagerConsts {
     Socket socket = null;
     private static Connection connection;
     String receiveName;
@@ -32,6 +32,14 @@ public class Connection extends Thread {
                     System.out.println(receiveName + " has left");
                     JOptionPane.showMessageDialog(ManagerUIBoard.getCreateManagerUI().frame, "User " + receiveName+ " has left");
                     System.out.println("members are: " + Server.memberList.toString());
+                    ArrayList<String> memberList = Server.memberList;
+//                        System.out.println(historyDraw);
+                    try {
+                        ConnectionMethods.sendMemberToAllUser(memberList);
+                        ConnectionMethods.updateUserList(memberList);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     try {
                         socket.close();
@@ -73,9 +81,11 @@ public class Connection extends Thread {
                                 }
                             case "begin":
                                 ArrayList<String> historyDraw = ManagerUIBoard.createDrawListener.getRecordList();
+                                ArrayList<String> memberList = Server.memberList;
 //                        System.out.println(historyDraw);
                                 try {
                                     ConnectionMethods.sendPaintToAllUser(historyDraw);
+                                    ConnectionMethods.sendMemberToAllUser(memberList);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -97,7 +107,7 @@ public class Connection extends Thread {
                                     if (verify == JOptionPane.YES_OPTION) {
                                         if (Server.memberList.contains(receiveName)) {
                                             try {
-                                                out.write(Consts.NOT_APPROVE + "\n");
+                                                out.write(NOT_APPROVE + "\n");
                                                 out.flush();
                                                 Server.connections.remove(this);
                                                 socket.close();
@@ -109,7 +119,6 @@ public class Connection extends Thread {
                                         } else {
                                             try {
                                                 Server.memberList.add(receiveName);
-                                                String[] strings = Server.memberList.toArray(new String[0]);
                                                 System.out.println(Server.memberList.toString());
 
                                                 JsonArray jsonArrayMem = new JsonArray();
@@ -122,7 +131,7 @@ public class Connection extends Thread {
                                                         "\"memberList\":" + jsonArrayMem + "}", HashMap.class);
                                                 String jsonCommand = new Gson().toJson(map);
                                                 System.out.println(jsonCommand);
-                                                ManagerUIBoard.memberList.setListData(strings);
+                                                ConnectionMethods.updateUserList(Server.memberList);
                                                 out.write(jsonCommand + "\n");
                                                 out.flush();
                                             } catch (Exception e) {

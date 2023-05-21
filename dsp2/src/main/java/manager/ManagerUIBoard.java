@@ -151,6 +151,7 @@ public class ManagerUIBoard {
 //        frame.getContentPane().add(background);
 
         JTextArea chatArea = new JTextArea();
+        chatArea.setEnabled(false);
         chatArea.setLineWrap(true);
         chatArea.setBounds(1284, 53, 310, 578);
         frame.getContentPane().add(chatArea);
@@ -165,10 +166,16 @@ public class ManagerUIBoard {
 
         memberList = new JList();
         memberList.setBounds(0, 406, 117, 320);
+
+        // 添加滚轮
+        JScrollPane memberListScrollPane = new JScrollPane(memberList);
+        memberListScrollPane.setBounds(0, 406, 117, 320);
+        memberListScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
         String myName = userName;
         String[] nameList = {myName};
         memberList.setListData(nameList);
-        frame.getContentPane().add(memberList);
+        frame.getContentPane().add(memberListScrollPane);
 
         JTextArea sendMessArea = new JTextArea();
         sendMessArea.setLineWrap(true);
@@ -191,10 +198,21 @@ public class ManagerUIBoard {
         JButton kickButton = new JButton("Kick");
         kickButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
             }
         });
         kickButton.setBounds(0, 725, 117, 42);
         frame.getContentPane().add(kickButton);
+
+        JTextArea userDisplayArea = new JTextArea();
+        userDisplayArea.setText("Manager: " + userName);
+        userDisplayArea.setEnabled(false);
+        userDisplayArea.setLineWrap(true);
+        // 添加滚轮
+        JScrollPane userDisplayAreaScrollPane = new JScrollPane(userDisplayArea);
+        userDisplayAreaScrollPane.setBounds(2, 309, 113, 45);
+        userDisplayAreaScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        frame.getContentPane().add(userDisplayAreaScrollPane);
 
     }
 

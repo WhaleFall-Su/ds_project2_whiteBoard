@@ -1,6 +1,5 @@
 package client;
 
-import manager.Consts;
 
 import javax.swing.*;
 import java.awt.*;

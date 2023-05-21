@@ -1,7 +1,6 @@
 package client;
 
 import com.google.gson.Gson;
-import manager.Consts;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +9,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-public class ApplyJoin {
+public class ApplyJoin implements ClientConsts{
 
     private JFrame frame;
 
@@ -130,7 +129,7 @@ public class ApplyJoin {
 
                         clientUIBoard = new ClientUIBoard(clientConnection, username);
                         clientUIBoard.setFrame(clientUIBoard);
-                    } else if (status.equals(Consts.NOT_APPROVE)) {
+                    } else if (status.equals(NOT_APPROVE)) {
                         JOptionPane.showMessageDialog(frame, "Username exists");
                         clientConnection.setStatus("wait");
                     } else if (status.equals("reject")) {

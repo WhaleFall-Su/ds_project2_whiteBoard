@@ -36,16 +36,28 @@ public class ClientConnection extends Thread{
                 HashMap reqMap = new Gson().fromJson(req, HashMap.class);
                 status = reqMap.get("feedback").toString();
                 ArrayList<String> historyDraw = new ArrayList<>();
+                ArrayList<String> memberList = new ArrayList<>();
+
+                JsonArray jsonArray = new JsonArray();
+                JsonParser parser = new JsonParser();
 
 //                System.out.println("status is " + userList.toString());
                 switch (status) {
-                    case "approve entre":
-
+                    /*HashMap map = new Gson().fromJson("{\"feedback\":\"userList\"," +
+                            "\"memberList\":" + jsonArrayMem + "}", HashMap.class);*/
+                    case "userList":
+                        jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("memberList");
+                        for (int i = 0; i < jsonArray.size(); i++) {
+                            memberList.add(jsonArray.get(i).toString().replace("\"",""));
+                        }
+                        String[] memberArr = memberList.toArray(new String[0]);
+                        System.out.println(Arrays.toString(memberArr));
+                        ClientConnectionMethods.updateUserList(memberList);
                         break;
                     case "draw":
                         // Get the array in json
-                        JsonArray jsonArray = new JsonArray();
-                        JsonParser parser = new JsonParser();
+                        jsonArray = new JsonArray();
+                        parser = new JsonParser();
                         jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("historyDraw");
                         if (jsonArray.size() != 0) {
                             for (int i = 0; i < jsonArray.size(); i++) {

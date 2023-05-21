@@ -61,4 +61,35 @@ public class ConnectionMethods {
             st.out.flush();
         }
     }
+
+    public static void sendMemberToAllUser(ArrayList<String> memberList) throws IOException {
+        String[] memberArr = memberList.toArray(new String[0]);
+
+        /*StringBuffer history = new StringBuffer();
+        for (String mess : historyArr) {
+            history.append(mess);
+        }*/
+
+        JsonArray jsonArrayMem = new JsonArray();
+        for (String member : memberArr) {
+            final JsonPrimitive jsonDraw = new JsonPrimitive(member);
+            jsonArrayMem.add(jsonDraw);
+        }
+
+        HashMap map = new Gson().fromJson("{\"feedback\":\"userList\"," +
+                "\"memberList\":" + jsonArrayMem + "}", HashMap.class);
+        String jsonCommand = new Gson().toJson(map);
+
+        System.out.println(jsonCommand);
+        for (Connection st : Server.connections) {
+//            st.out.write("draw|" + history + "\n");
+            st.out.write(jsonCommand + "\n");
+            st.out.flush();
+        }
+    }
+
+    public static void updateUserList(ArrayList<String> memberList) {
+        String[] memberArr = memberList.toArray(new String[0]);
+        ManagerUIBoard.memberList.setListData(memberArr);
+    }
 }

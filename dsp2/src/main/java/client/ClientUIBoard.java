@@ -162,12 +162,19 @@ public class ClientUIBoard {
         memberList.setLineWrap(true);
         memberList.setBounds(0, 408, 117, 358);
         frame.getContentPane().add(memberList);*/
+
         memberList = new JList();
         memberList.setBounds(0, 406, 117, 320);
+
+        // 添加滚轮
+        JScrollPane memberListScrollPane = new JScrollPane(memberList);
+        memberListScrollPane.setBounds(0, 406, 117, 320);
+        memberListScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
         String myName = userName;
         String[] nameList = {myName};
         memberList.setListData(nameList);
-        frame.getContentPane().add(memberList);
+        frame.getContentPane().add(memberListScrollPane);
 
         JTextArea sendMessArea = new JTextArea();
         sendMessArea.setLineWrap(true);
@@ -186,6 +193,16 @@ public class ClientUIBoard {
         JLabel member = new JLabel("Member List");
         member.setBounds(0, 391, 108, 16);
         frame.getContentPane().add(member);
+
+        JTextArea userDisplayArea = new JTextArea();
+        userDisplayArea.setText("User: " + userName);
+        userDisplayArea.setEnabled(false);
+        userDisplayArea.setLineWrap(true);
+        // 添加滚轮
+        JScrollPane userDisplayAreaScrollPane = new JScrollPane(userDisplayArea);
+        userDisplayAreaScrollPane.setBounds(2, 309, 113, 45);
+        userDisplayAreaScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        frame.getContentPane().add(userDisplayAreaScrollPane);
 
         HashMap map = new Gson().fromJson("{\"feedback\":\"begin\"" + "}", HashMap.class);
         String begin = new Gson().toJson(map);
