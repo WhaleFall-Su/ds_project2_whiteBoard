@@ -111,7 +111,7 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
                 int width = Math.abs(toX - fromX);
                 int height = Math.abs(toY - fromY);
                 graphics2D.drawOval(fromX - width, fromY - height, 2 * width, 2 * height);
-                record = "oval " + this.thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " |";
+                record = "oval " + this.thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " " + width + " " + height + " |";
                 recordList.add(record);
                 break;
             case "circle":
@@ -119,7 +119,7 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
                 graphics2D.setStroke(new BasicStroke(thickness));
                 int diameter = Math.min(Math.abs(fromX - toX), Math.abs(fromY - toY));
                 graphics2D.drawOval(Math.min(fromX,toX),Math.min(fromY,toY),diameter,diameter);
-                record = "circle " + thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " |";
+                record = "circle " + thickness + " " + rgb + " " + fromX + " " + fromY + " " + toX + " " + toY + " " + diameter + " |";
                 recordList.add(record);
                 break;
             case "rect":
@@ -133,11 +133,11 @@ public class Listener implements ActionListener, MouseListener, MouseMotionListe
             case "A":
                 String text = JOptionPane.showInputDialog("Please enter text");
                 if (text != null) {
-                    Font f = new Font(null, Font.PLAIN, this.thickness + 10);
-                    graphics2D.setFont(f);
+                    Font font = new Font(null, Font.PLAIN, this.thickness + 10);
+                    graphics2D.setFont(font);
                     graphics2D.drawString(text, toX, toY);
                     rgb = colorToString(color);
-                    record = "Text " + thickness + " " + rgb + " " + toX + " " + toY + text + " |";
+                    record = "A " + thickness + " " + rgb + " " + toX + " " + toY + " " + text + " |";
                     recordList.add(record);
                 }
         }
