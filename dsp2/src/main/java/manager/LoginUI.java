@@ -78,8 +78,14 @@ public class LoginUI {
 
         addUserButton.addActionListener(e -> {
             if (e.getActionCommand().equals("ENTER")) {
+                //解决manager用户不唯一问题
                 if (!userNameArea.getText().equals("")) {
-                    username = userNameArea.getText();
+                    if (Server.memberList.contains(username)) {
+                        Server.memberList.remove(username);
+                        username = userNameArea.getText();
+                        Server.memberList.add(username);
+                    }
+
                 }
                 frame.dispose();
                 try {

@@ -27,7 +27,10 @@ public class Connection extends Thread implements ManagerConsts {
             while (true) {
 //                socket.setKeepAlive(true);
                 if (isServerClose(socket)) {
-                    Server.memberList.remove(receiveName);
+                    if (Server.memberList.size() > 1) {
+                        Server.memberList.remove(receiveName);
+                    }
+
                     Server.connections.remove(this);
                     System.out.println(receiveName + " has left");
                     if (receiveName != null) {
