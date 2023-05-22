@@ -2,7 +2,10 @@ package client;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
 import manager.CanvasPainter;
+import manager.ConnectionMethods;
 import manager.Listener;
 import manager.ManagerUIBoard;
 
@@ -30,6 +33,7 @@ public class ClientUIBoard {
     public static int curX, curY;
     public static JTextArea chatArea;
     public static ClientUIBoard createClientUIBoard;
+    public static String userName;
 
     /*// 得到图标图片，存在问题
     ImageIcon circle = new ImageIcon("/icon/circle.png");
@@ -61,7 +65,7 @@ public class ClientUIBoard {
      * Initialize the contents of the frame.
      */
     private void initialize(ClientConnection clientConnection, String userName) {
-
+        ClientUIBoard.userName = userName;
 
         frame = new JFrame();
         frame.setBounds(100, 100, 1600, 800);
@@ -153,10 +157,11 @@ public class ClientUIBoard {
 //        background.setBackground(Color.WHITE);
 //        frame.getContentPane().add(background);
 
-        JTextArea chatArea = new JTextArea();
+        chatArea = new JTextArea();
         chatArea.setLineWrap(true);
         chatArea.setBounds(1284, 53, 310, 578);
         frame.getContentPane().add(chatArea);
+
 
         /*JTextArea memberList = new JTextArea();
         memberList.setLineWrap(true);
@@ -181,9 +186,34 @@ public class ClientUIBoard {
         sendMessArea.setBounds(1284, 661, 236, 105);
         frame.getContentPane().add(sendMessArea);
 
-        JButton send = new JButton("Send");
-        send.setBounds(1520, 739, 74, 29);
-        frame.getContentPane().add(send);
+        JButton sendMessButton = new JButton("Send");
+        sendMessButton.setBounds(1520, 739, 74, 29);
+        sendMessButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String sendMess = sendMessArea.getText();
+                sendMess = userName + ": " + sendMess;
+                chatArea.append(sendMess + "\n");
+                String[] sendMessArr = {sendMess};
+
+                JsonArray jsonArrayMess = new JsonArray();
+                for (String draw : sendMessArr) {
+                    final JsonPrimitive jsonDraw = new JsonPrimitive(draw);
+                    jsonArrayMess.add(jsonDraw);
+                }
+                HashMap map = new Gson().fromJson("{\"feedback\":\"message\"," +
+                        "\"sendMess\":" + jsonArrayMess + "}", HashMap.class);
+                String sendMessJson = new Gson().toJson(map);
+                try {
+                    clientConnection.out.write(sendMessJson+"\n");
+                    clientConnection.out.flush();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+        frame.getContentPane().add(sendMessButton);
+
 
         JLabel chat = new JLabel("Chat");
         chat.setHorizontalAlignment(SwingConstants.CENTER);

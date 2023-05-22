@@ -1,7 +1,7 @@
 package manager;
 
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import test.FormatSaveFileUI;
 
 import javax.swing.*;
@@ -14,6 +14,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;
 import javax.imageio.*;
+
+import com.google.gson.Gson;
 
 
 public class ManagerUIBoard {
@@ -206,7 +208,7 @@ public class ManagerUIBoard {
 //        background.setBackground(Color.WHITE);
 //        frame.getContentPane().add(background);
 
-        JTextArea chatArea = new JTextArea();
+        chatArea = new JTextArea();
         chatArea.setEnabled(false);
         chatArea.setLineWrap(true);
         chatArea.setBounds(1284, 53, 310, 578);
@@ -248,9 +250,29 @@ public class ManagerUIBoard {
         sendMessArea.setBounds(1284, 661, 236, 105);
         frame.getContentPane().add(sendMessArea);
 
-        JButton send = new JButton("Send");
-        send.setBounds(1520, 739, 74, 29);
-        frame.getContentPane().add(send);
+        JButton sendMessButton = new JButton("Send");
+        sendMessButton.setBounds(1520, 739, 74, 29);
+        sendMessButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String sendMess = sendMessArea.getText();
+                sendMess = "Manager: " + sendMess;
+                chatArea.append(sendMess + "\n");
+                String[] sendMessArr = {sendMess};
+
+                JsonArray jsonArrayMess = new JsonArray();
+                for (String draw : sendMessArr) {
+                    final JsonPrimitive jsonDraw = new JsonPrimitive(draw);
+                    jsonArrayMess.add(jsonDraw);
+                }
+                HashMap map = new Gson().fromJson("{\"feedback\":\"message\"," +
+                        "\"sendMess\":" + jsonArrayMess + "}", HashMap.class);
+                String sendMessJson = new Gson().toJson(map);
+
+                ConnectionMethods.sendToAllUser(sendMessJson);
+            }
+        });
+        frame.getContentPane().add(sendMessButton);
 
         JLabel chat = new JLabel("Chat");
         chat.setHorizontalAlignment(SwingConstants.CENTER);

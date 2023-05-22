@@ -47,6 +47,30 @@ public class ClientConnection extends Thread{
                 JsonArray jsonArray = new JsonArray();
                 JsonParser parser = new JsonParser();
                 switch (status) {
+                    /*HashMap map = new Gson().fromJson("{\"feedback\":\"managerMess\"," +
+                            "\"sendManagerMess\":" + sendMess + "}", HashMap.class);*/
+                    case "message":
+                        if (ApplyJoin.clientUIBoard != null) {
+                            try {
+                                String managerMess = null;
+                                jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("sendMess");
+                                for (int i = 0; i < jsonArray.size(); i++) {
+                                    managerMess = jsonArray.get(i).toString().replace("\"", "");
+                                }
+                                String[] messArr = managerMess.split(":");
+                                if (!messArr[0].equals(ClientUIBoard.userName)) {
+                                    System.out.println(managerMess);
+                                    ClientUIBoard.chatArea.append(managerMess + "\n");
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+
+                        } else {
+                            resetStatus("wait");
+                        }
+                        break;
                     case "kick":
                         kick = true;
                         System.out.println("you are kick");

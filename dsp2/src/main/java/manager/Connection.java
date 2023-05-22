@@ -54,16 +54,29 @@ public class Connection extends Thread implements ManagerConsts {
                         String status = reqMap.get("feedback").toString();
 //                        String[] outList = req.split(" ", 2);
                         System.out.println(req);
+                        JsonArray jsonArray = new JsonArray();
+                        JsonParser parser = new JsonParser();
                         switch (status) {
+                            /*HashMap map = new Gson().fromJson("{\"feedback\":\"userMess\"," +
+                                    "\"sendUserMess\":" + jsonArrayMess + "}", HashMap.class);*/
+                            case "message":
+                                String userMess = null;
 
+                                jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("sendMess");
+                                for (int i = 0; i < jsonArray.size(); i++) {
+                                    userMess = jsonArray.get(i).toString().replace("\"", "");
+                                }
+
+                                System.out.println(userMess);
+                                ManagerUIBoard.chatArea.append(userMess + "\n");
+                                ConnectionMethods.sendToAllUser(req);
+                                break;
                             case "draw":
                                 try {
                                     // 将消息发送给所有的用户
                                     ConnectionMethods.sendToAllUser(req);
 
                                     ArrayList<String> historyDraw = new ArrayList<>();
-                                    JsonArray jsonArray = new JsonArray();
-                                    JsonParser parser = new JsonParser();
                                     jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("historyDraw");
                                     for (int i = 0; i < jsonArray.size(); i++) {
                                         // json解析出来的字符会包含"，所以要去掉

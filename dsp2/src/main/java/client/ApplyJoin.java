@@ -118,8 +118,6 @@ public class ApplyJoin implements ClientConsts{
                         System.out.println("getStatus() is " + status);
                         if (status.equals("approve enter")) {
                             frame.dispose();
-
-
                             clientUIBoard = new ClientUIBoard(clientConnection, username);
                             clientUIBoard.setFrame(clientUIBoard);
                         } else if (status.equals(NOT_APPROVE)) {
