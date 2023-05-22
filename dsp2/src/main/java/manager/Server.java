@@ -31,7 +31,7 @@ public class Server {
                 try {
                     clientSocket = server.accept();
                     clientNum += 1;
-                    System.out.println(clientNum + " request to connect");
+                    System.out.println(clientNum + " " + username + " request to connect");
                     connection = new Connection(clientSocket);
                     /*memberMap.put(username, connection);*/
                     connections.add(connection);

@@ -3,6 +3,9 @@ package client;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import manager.ConnectionMethods;
+import manager.ManagerUIBoard;
+import manager.Server;
 
 import javax.imageio.IIOException;
 import javax.swing.*;
@@ -18,6 +21,7 @@ public class ClientConnection extends Thread{
     BufferedReader in;
     BufferedWriter out;
     private String status = "wait";
+    private boolean kick = false;
 
 
     public void setStatus(String status) {
@@ -28,6 +32,8 @@ public class ClientConnection extends Thread{
     public void run() {
         try {
             while (true) {
+
+
                 String req = in.readLine();
                 //{"feedback":"approve enter","memberList":["Manager","hu","hy"]}
                 System.out.println(req);
@@ -40,50 +46,80 @@ public class ClientConnection extends Thread{
 
                 JsonArray jsonArray = new JsonArray();
                 JsonParser parser = new JsonParser();
-
-//                System.out.println("status is " + userList.toString());
                 switch (status) {
+                    case "kick":
+                        kick = true;
+                        System.out.println("you are kick");
+                        // 这里socket要先关闭，不然manager要等待cient点击弹窗确定后才能更新list
+                        socket.close();
+                        JOptionPane.showMessageDialog(ApplyJoin.clientUIBoard.frame, "You are kicked by Manager!");
+                        break;
+                    case "clean":
+                        //加这个判断是防止client还没收到server端允许进入白板时，server端画图等操作传给当前client
+                        // 但此时client的白板还没打开，会报错
+                        if (ApplyJoin.clientUIBoard != null) {
+                            ClientUIBoard.createDrawListener.cleanHistoryRecord();
+                            ClientUIBoard.canvas.repaint();
+                        } else {
+                            resetStatus("wait");
+                        }
+
+                        break;
                     /*HashMap map = new Gson().fromJson("{\"feedback\":\"userList\"," +
                             "\"memberList\":" + jsonArrayMem + "}", HashMap.class);*/
                     case "userList":
-                        jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("memberList");
-                        for (int i = 0; i < jsonArray.size(); i++) {
-                            memberList.add(jsonArray.get(i).toString().replace("\"",""));
+                        if (ApplyJoin.clientUIBoard != null) {
+                            jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("memberList");
+                            for (int i = 0; i < jsonArray.size(); i++) {
+                                memberList.add(jsonArray.get(i).toString().replace("\"", ""));
+                            }
+                            String[] memberArr = memberList.toArray(new String[0]);
+                            System.out.println(Arrays.toString(memberArr));
+                            ClientConnectionMethods.updateUserList(memberList);
+                        } else {
+                            resetStatus("wait");
                         }
-                        String[] memberArr = memberList.toArray(new String[0]);
-                        System.out.println(Arrays.toString(memberArr));
-                        ClientConnectionMethods.updateUserList(memberList);
+
                         break;
                     case "draw":
-                        // Get the array in json
-                        jsonArray = new JsonArray();
-                        parser = new JsonParser();
-                        jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("historyDraw");
-                        if (jsonArray.size() != 0) {
-                            for (int i = 0; i < jsonArray.size(); i++) {
-                                historyDraw.add(jsonArray.get(i).toString().replace("\"",""));
-                            }
-                            String[] recordArr = historyDraw.toArray(new String[0]);
-                            System.out.println(Arrays.toString(recordArr));
-                            for (String draw : recordArr) {
-                                ClientUIBoard.createDrawListener.updateRecord(draw);
-                                ClientUIBoard.canvas.repaint();
-                            }
+                        if (ApplyJoin.clientUIBoard != null) {
+                            // Get the array in json
+                            jsonArray = new JsonArray();
+                            parser = new JsonParser();
+                            jsonArray = new JsonParser().parse(req).getAsJsonObject().getAsJsonArray("historyDraw");
+                            if (jsonArray.size() != 0) {
+                                for (int i = 0; i < jsonArray.size(); i++) {
+                                    historyDraw.add(jsonArray.get(i).toString().replace("\"", ""));
+                                }
+                                String[] recordArr = historyDraw.toArray(new String[0]);
+                                System.out.println(Arrays.toString(recordArr));
+                                for (String draw : recordArr) {
+                                    ClientUIBoard.createDrawListener.updateRecord(draw);
+                                    ClientUIBoard.canvas.repaint();
+                                }
 //                        ClientUIBoard.canvas.setList(historyDraw);
 
+                            }
+                        } else {
+                            resetStatus("wait");
                         }
 
                         break;
                 }
+
+
+
+
             }
-        } catch (IOException e) {
-            try {
-                /*if (kick) {
-                    JOptionPane.showMessageDialog(ApplyJoin.clientUIBoard.frame, "Disconnected with server");
-                }*/
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (!kick) {
                 System.out.println("exit");
-                JOptionPane.showMessageDialog(ApplyJoin.clientUIBoard.frame, "Disconnected with server");
-            } catch (Exception exception) {
+                try {
+                    JOptionPane.showMessageDialog(ApplyJoin.clientUIBoard.frame, "Disconnected with server");
+                } catch (Exception exception) {
+
+                }
 
             }
             System.exit(0);
@@ -106,5 +142,17 @@ public class ClientConnection extends Thread{
         return status;
     }
 
+    public void resetStatus(String reset) {
+        this.status = reset;
+    }
+
+    public Boolean isServerClose(Socket socket){
+        try{
+            socket.sendUrgentData(0xFF);//发送1个字节的紧急数据，默认情况下，服务器端没有开启紧急数据处理，不影响正常通信
+            return false;
+        }catch(Exception se){
+            return true;
+        }
+    }
 
 }

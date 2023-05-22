@@ -28,8 +28,8 @@ public class CanvasPainter extends JPanel implements ClientConsts{
                 if (record[1].equals("|")) {
                     continue;
                 }
-                System.out.println(line);
-                System.out.println(record[0]);
+                /*System.out.println(line);
+                System.out.println(record[0]);*/
                 switch (record[0]) {
                     case "line":
                         System.out.println("get");

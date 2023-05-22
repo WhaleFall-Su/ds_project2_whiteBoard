@@ -30,17 +30,17 @@ public class Connection extends Thread implements ManagerConsts {
                     Server.memberList.remove(receiveName);
                     Server.connections.remove(this);
                     System.out.println(receiveName + " has left");
-                    JOptionPane.showMessageDialog(ManagerUIBoard.getCreateManagerUI().frame, "User " + receiveName+ " has left");
-                    System.out.println("members are: " + Server.memberList.toString());
-                    ArrayList<String> memberList = Server.memberList;
-//                        System.out.println(historyDraw);
-                    try {
-                        ConnectionMethods.sendMemberToAllUser(memberList);
-                        ConnectionMethods.updateUserList(memberList);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (!receiveName.equals("")) {
+                        JOptionPane.showMessageDialog(ManagerUIBoard.getCreateManagerUI().frame, "User " + receiveName+ " has left");
+                        System.out.println("members are: " + Server.memberList.toString());
+                        ArrayList<String> memberList = Server.memberList;
+                        try {
+                            ConnectionMethods.sendMemberToAllUser(memberList);
+                            ConnectionMethods.updateUserList(memberList);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-
                     try {
                         socket.close();
                         break;
@@ -55,6 +55,7 @@ public class Connection extends Thread implements ManagerConsts {
 //                        String[] outList = req.split(" ", 2);
                         System.out.println(req);
                         switch (status) {
+
                             case "draw":
                                 try {
                                     // 将消息发送给所有的用户

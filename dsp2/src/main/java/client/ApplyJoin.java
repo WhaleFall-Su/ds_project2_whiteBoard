@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import manager.ManagerUIBoard;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ApplyJoin implements ClientConsts{
 
-    private JFrame frame;
+    public JFrame frame;
 
     public static String address;
     public static int port;
@@ -99,50 +100,49 @@ public class ApplyJoin implements ClientConsts{
             if (e.getActionCommand().equals("ENTER")) {
                 try {
                     username = userNameArea.getText();
+                    System.out.println(username);
+                    if (!username.equals("")) {
+                        HashMap map = new Gson().fromJson("{\"feedback\":\"join\"," +
+                                "\"userName\":" + username + "}", HashMap.class);
+                        String join = new Gson().toJson(map);
 
-                    HashMap map = new Gson().fromJson("{\"feedback\":\"join\"," +
-                            "\"userName\":" + username + "}", HashMap.class);
-                    String join = new Gson().toJson(map);
-
-                    clientConnection.out.write(join + "\n");
-                    clientConnection.out.flush();
-                    int time = 0;
-                    while (clientConnection.getStatus().equals("wait") && time < 100000) {
-                        TimeUnit.MILLISECONDS.sleep(100);
-                        time += 100;
-                    }
-
-                    String status = clientConnection.getStatus();
-
-                    System.out.println("getStatus() is " + status);
-                    if (status.equals("approve enter")) {
-                        frame.dispose();
-
-                        /*HashMap beginMap = new Gson().fromJson("{\"feedback\":\"begin\"" + "}", HashMap.class);
-                        String begin = new Gson().toJson(beginMap);
-                        try {
-                            clientConnection.out.write(begin + "\n");
-                            clientConnection.out.flush();
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
-                        }*/
-
-                        clientUIBoard = new ClientUIBoard(clientConnection, username);
-                        clientUIBoard.setFrame(clientUIBoard);
-                    } else if (status.equals(NOT_APPROVE)) {
-                        JOptionPane.showMessageDialog(frame, "Username exists");
-                        clientConnection.setStatus("wait");
-                    } else if (status.equals("reject")) {
-                        JOptionPane.showMessageDialog(frame, "Refused by Manager");
-                        frame.dispose();
-                        try {
-                            socket.close();
-                            System.exit(1);
-                        } catch (Exception exception) {
-
+                        clientConnection.out.write(join + "\n");
+                        clientConnection.out.flush();
+                        int time = 0;
+                        while (clientConnection.getStatus().equals("wait") && time < 100000) {
+                            TimeUnit.MILLISECONDS.sleep(100);
+                            time += 100;
                         }
+
+                        String status = clientConnection.getStatus();
+                        System.out.println("getStatus() is " + status);
+                        if (status.equals("approve enter")) {
+                            frame.dispose();
+
+
+                            clientUIBoard = new ClientUIBoard(clientConnection, username);
+                            clientUIBoard.setFrame(clientUIBoard);
+                        } else if (status.equals(NOT_APPROVE)) {
+                            JOptionPane.showMessageDialog(frame, "Username exists");
+                            clientConnection.setStatus("wait");
+                        } else if (status.equals("reject")) {
+                            JOptionPane.showMessageDialog(frame, "Refused by Manager");
+                            frame.dispose();
+                            try {
+                                socket.close();
+                                System.exit(1);
+                            } catch (Exception exception) {
+
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this.frame, "Please input username");
                     }
+
                 } catch (Exception exception) {
+                    System.out.println("exit");
+                    JOptionPane.showMessageDialog(this.frame, "Disconnected with server");
+                    System.exit(0);
                     exception.printStackTrace();
                 }
             }

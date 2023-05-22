@@ -1,10 +1,19 @@
 package manager;
 
 
+import com.google.gson.Gson;
+import test.FormatSaveFileUI;
+
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.HashMap;
+import javax.imageio.*;
 
 
 public class ManagerUIBoard {
@@ -16,6 +25,8 @@ public class ManagerUIBoard {
     int height;
 //    private String file = "./save/white_board";
 
+    public static FormatSaveFileUI formatSaveFileUI;
+
 
 
     static ManagerUIBoard createManagerUI;
@@ -24,6 +35,7 @@ public class ManagerUIBoard {
     public static JList memberList;
     public static int curX, curY;
     public static JTextArea chatArea;
+    public static String selectedUser;
 
     /*// 得到图标图片，存在问题
     ImageIcon circle = new ImageIcon("/icon/circle.png");
@@ -77,6 +89,50 @@ public class ManagerUIBoard {
         JComboBox menu = new JComboBox();
         toolPanel.add(menu);
         menu.setModel(new DefaultComboBoxModel(new String[]{"New", "Save", "Save as", "Open", "Exit"}));
+        menu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedItem = (String) menu.getSelectedItem();
+
+                if (selectedItem.equals("New")) {
+                    //清空白板
+
+                    /*createDrawListener.cleanHistoryRecord();
+
+                    HashMap map = new Gson().fromJson("{\"feedback\":\"clean\"" + "}", HashMap.class);
+                    String jsonCommand = new Gson().toJson(map);
+
+                    ConnectionMethods.sendToAllUser(jsonCommand);
+                    canvas.repaint();
+                    try {
+                        ConnectionMethods.sendPaintToAllUser(createDrawListener.getRecordList());
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }*/
+                    cleanBoard();
+
+                    System.out.println("new selected");
+                } else if (selectedItem.equals("Save")) {
+                    String fileName = "save";
+                    File file = new File("./save.jpg");
+                    try {
+                        saveRecord("./",fileName);
+                        saveAsImage(file, "jpg");
+                    } catch (Exception exception) {
+                    }
+
+                    System.out.println("Save selected");
+                } else if (selectedItem.equals("Save as")) {
+                    //
+                    saveAsFile();
+                    System.out.println("Save selected");
+                } else if (selectedItem.equals("Open")) {
+                    openFile();
+                } else if (selectedItem.equals("Exit")) {
+                    System.exit(0);
+                }
+            }
+        });
 
         // tool
         JButton lineButton = new JButton("line");
@@ -175,6 +231,16 @@ public class ManagerUIBoard {
         String myName = userName;
         String[] nameList = {myName};
         memberList.setListData(nameList);
+        memberList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        memberList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    selectedUser = (String) memberList.getSelectedValue();
+                    System.out.println("selectedUser "+selectedUser);
+                }
+            }
+        });
         frame.getContentPane().add(memberListScrollPane);
 
         JTextArea sendMessArea = new JTextArea();
@@ -198,6 +264,37 @@ public class ManagerUIBoard {
         JButton kickButton = new JButton("Kick");
         kickButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // manager无法踢出自己
+                if (selectedUser.equals(userName)) {
+                    return;
+                }
+
+
+                for (Connection connection : Server.connections) {
+                    if (connection.receiveName.equals(selectedUser)) {
+
+                        HashMap map = new Gson().fromJson("{\"feedback\":\"kick\"" + "}", HashMap.class);
+                        String kickCommand = new Gson().toJson(map);
+
+                        Server.memberList.remove(selectedUser);
+
+                        /*ConnectionMethods.sendToAllUser(kickCommand);*/
+                        try {
+                            connection.out.write(kickCommand + "\n");
+                            connection.out.flush();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                        }
+                        Server.connections.remove(connection);
+                        break;
+                    }
+                }
+                try {
+                    ConnectionMethods.sendMemberToAllUser(Server.memberList);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
 
             }
         });
@@ -223,4 +320,123 @@ public class ManagerUIBoard {
     public static ManagerUIBoard getCreateManagerUI() {
         return createManagerUI;
     }
+
+    public void cleanBoard() {
+        createDrawListener.cleanHistoryRecord();
+
+        HashMap map = new Gson().fromJson("{\"feedback\":\"clean\"" + "}", HashMap.class);
+        String jsonCommand = new Gson().toJson(map);
+
+        ConnectionMethods.sendToAllUser(jsonCommand);
+        canvas.repaint();
+        try {
+            ConnectionMethods.sendPaintToAllUser(createDrawListener.getRecordList());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+
+    public void saveAsFile() {
+        //选择要保存的位置以及文件名字和信息
+        JFileChooser chooser = new JFileChooser();
+        chooser.showSaveDialog(null);
+        File file = chooser.getSelectedFile();
+        if (file == null) {
+            JOptionPane.showMessageDialog(null, "没有选择文件");
+        } else {
+
+            try {
+                // 分割文件名
+                String[] fileArr = file.getName().split("\\.");
+                System.out.println(file.getAbsolutePath());
+                System.out.println(file.getParent());
+                if (fileArr.length > 1) {
+                    // 得到当前的文件格式
+                    String fileName = fileArr[0];
+                    String format = fileArr[1];
+
+                    if (format.equals("jpg") || format.equals("png")) {
+                        String parentPath = file.getParent();
+                        saveRecord(parentPath, fileName);
+                        saveAsImage(file, format);
+
+                        JOptionPane.showMessageDialog(null, "save success！");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "save fail！");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "save fail！");
+                }
+
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    public void saveAsImage(File file, String format) throws IOException {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = image.createGraphics();
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.fillRect(0, 0, width, height);
+        canvas.draw(graphics2D, createDrawListener.getRecordList());
+        try {
+            if (format.equals("jpg")) {
+                ImageIO.write(image, "JPEG", file);
+            } else if (format.equals("png")) {
+                ImageIO.write(image, "PNG", file);
+            }
+        } catch (IOException e) {
+            System.out.println("wrong file");
+        }
+    }
+
+    public void saveRecord(String parentPath, String fileName) {
+        try {
+            String file = fileName + ".txt";
+            FileWriter writer = new FileWriter(parentPath + "/" + file);
+
+            // 写入文件内容
+            for (String record : createDrawListener.recordList) {
+                writer.write(record);
+                writer.write("\n");
+            }
+
+            writer.close();
+
+            System.out.println("save record file success！");
+        } catch (IOException e) {
+            System.out.println("save record file failed：" + e.getMessage());
+        }
+    }
+
+    public void openFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int option = fileChooser.showOpenDialog(null);
+
+        if (option == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String filePath = file.getAbsolutePath();
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+                String line;
+                cleanBoard();
+                while ((line = reader.readLine()) != null) {
+                    createDrawListener.updateRecord(line);
+                    System.out.println("record are "+line);
+                }
+                canvas.repaint();
+                try {
+                    ConnectionMethods.sendPaintToAllUser(createDrawListener.getRecordList());
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            } catch (IOException e) {
+                System.out.println("open file failed：" + e.getMessage());
+            }
+        }
+    }
+
+
+
 }
