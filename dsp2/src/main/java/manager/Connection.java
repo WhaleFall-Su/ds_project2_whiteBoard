@@ -30,7 +30,7 @@ public class Connection extends Thread implements ManagerConsts {
                     Server.memberList.remove(receiveName);
                     Server.connections.remove(this);
                     System.out.println(receiveName + " has left");
-                    if (!receiveName.equals("")) {
+                    if (receiveName != null) {
                         JOptionPane.showMessageDialog(ManagerUIBoard.getCreateManagerUI().frame, "User " + receiveName+ " has left");
                         System.out.println("members are: " + Server.memberList.toString());
                         ArrayList<String> memberList = Server.memberList;

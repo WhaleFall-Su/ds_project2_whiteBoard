@@ -99,7 +99,10 @@ public class ApplyJoin implements ClientConsts{
         addUserButton.addActionListener(e -> {
             if (e.getActionCommand().equals("ENTER")) {
                 try {
-                    username = userNameArea.getText();
+                    //如果用户没有输入用户名，则用默认的或者命令行里的username
+                    if (!userNameArea.getText().equals("")) {
+                        username = userNameArea.getText();
+                    }
                     System.out.println(username);
                     if (!username.equals("")) {
                         HashMap map = new Gson().fromJson("{\"feedback\":\"join\"," +

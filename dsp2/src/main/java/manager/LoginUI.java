@@ -78,7 +78,9 @@ public class LoginUI {
 
         addUserButton.addActionListener(e -> {
             if (e.getActionCommand().equals("ENTER")) {
-                username = userNameArea.getText();
+                if (!userNameArea.getText().equals("")) {
+                    username = userNameArea.getText();
+                }
                 frame.dispose();
                 try {
 
